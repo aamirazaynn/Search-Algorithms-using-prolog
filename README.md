@@ -8,6 +8,19 @@
     - Path must not contain repeated cells.
     
 # To use A* Algorithm use this query : 
-    a_star_search([[start, null, 0, x, 0]], [], goal).
-    replace start with the node you want to start with, and goal woth the goal you want 
-    Example: a_star_search([[node(0, 0, red), null, 0, x, 0]], [], node(1, 3, red)).
+    - Use (input.) as your query to enter the puzzle you want to solve.
+    - Use (search.) as your query to input your start, goal, and solve the puzzle.
+
+# What bfs.pl should do : 
+    - Given a board that consists of N x M cells.
+    - Each cell contains a color (Red, Yellow or Blue).
+    - Your task is to find color cycles for any of the three colors.
+    - Print at least one of these cycles including its color (if any) or no cycles exist.
+    - Cycle defined by the following cells c1, c2, ..., ck must have the following:
+        - These cells are different (no duplicates).
+        - At least 4 cells (or more).
+        - All cells have the same color.
+        - The cells are adjacent to each other.
+
+# To use A* Algorithm use this query : 
+    - (main.)

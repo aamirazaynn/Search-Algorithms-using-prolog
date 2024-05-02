@@ -1,26 +1,56 @@
 % --------------------------------------------------------- Facts ------------------------------------------------
 
-% (width, hieght)
-board_size(4, 4).
+% board_size(NumColumns, NumRows)
+:- dynamic board_size/2.
 
-% grid representation 
-node(0,0,red).
-node(0,1,red).
-node(0,2,yellow).
-node(0,3,yellow).
-node(1,0,red).  
-node(1,1,blue).
-node(1,2,red).
-node(1,3,red).
-node(2,0,red).
-node(2,1,red).
-node(2,2,red).
-node(2,3,yellow).
-node(3,0,blue).
-node(3,1,red).
-node(3,2,blue).
-node(3,3,yellow).
+% node(x, y, color)
+:- dynamic node/3.
 
+color(r).
+color(b).
+color(y).
+
+% ------------------------------------------------------ board input ------------------------------------------------
+
+% Predicate to take input for board dimensions
+input_board_dimensions :-
+    write('Enter the board width (number of columns): '), 
+    read(NumColumns),
+    write('Enter the board height (number of rows): '),
+    read(NumRows),
+    assert(board_size(NumColumns, NumRows)).
+
+% Predicate to take input for each node's color
+input_board(X, _) :-
+    board_size(_, NumRows),
+    X = NumRows, !,
+    nl, write('Board input complete!'), nl.
+
+input_board(X, Y) :-
+    board_size(NumColumns, NumRows),
+    Y1 is Y + 1,
+    X1 is X + 1,
+    (Y1 =< NumColumns -> (input_node(X, Y), input_board(X, Y1)) ; input_board(X1, 0)).
+
+input_node(X, Y) :-
+    write('Enter color for node at position ('),
+    write(X), write(','), write(Y), write(')'),
+    read(Color),
+    (color(Color) -> assert(node(X, Y, Color)) ; (nl, write('Invalid color!'), nl, fail)).
+
+inputCompleted(X, Y) :-
+    board_size(NumColumns, NumRows),
+    X = NumRows, Y = NumColumns.
+
+% ------------------------------------------------------ search input ----------------------------------------------
+
+input_search_data(node(X1, Y1, C1), node(X2, Y2, C2)) :-
+    write('Enter the start node, Ex -> node(x, y, color): '),
+    read(node(X1, Y1, C1)),
+    (node(X1, Y1, C1) -> true ; (nl, write('Invalid node!'), nl, fail)),
+    write('Enter the goal node, Ex -> node(x, y, color): '),
+    read(node(X2, Y2, C2)),
+    (node(X2, Y2, C2) -> true ; (nl, write('Invalid node!'), nl, fail)).
 
 % ---------------------------------------------------- logic of puzzle ---------------------------------------------
 
@@ -52,9 +82,9 @@ move(node(X, Y1,C), node(X, Y2,C), 1):-
 
 % Check if a position is within the bounds of the board
 inbounds(X, Y) :-
-    board_size(N, M), 
-    X >= 0, X < N, 
-    Y >= 0, Y < M.
+    board_size(NumColumns, NumRows), 
+    X >= 0, X < NumRows, 
+    Y >= 0, Y < NumColumns.
 
 % calculate heuristic predicate using manhattan distance 
 heuristic(node(X, Y, C), node(X_Goal, Y_Goal, C_Goal), H) :-
@@ -64,7 +94,7 @@ heuristic(node(X, Y, C), node(X_Goal, Y_Goal, C_Goal), H) :-
 
 % search base case, it stops when the current state is the same as goal state
 a_star_search(Open, Closed, Goal):-
-    getBestState(Open, [CurrentState,Parent,G,H,F], _), 
+    getBestStateFromFrontier(Open, [CurrentState,Parent,G,H,F], _), 
     CurrentState = Goal, 
     write("search is complete!"), nl,
     printSolution([CurrentState,Parent,G,H,F], Closed), !.
@@ -76,6 +106,10 @@ a_star_search(Open, Closed, Goal):-
     addChildren(Children, TmpOpen, NewOpen),
     append(Closed, [CurrentNode], NewClosed),
     a_star_search(NewOpen, NewClosed, Goal).
+
+% when there is no path
+a_star_search(_, _, _):-
+    write("no path!"), nl.
 
 % get the best state and delete in from the open list (frontier)
 getBestStateFromFrontier(Open, BestChild, Rest):-
@@ -121,3 +155,19 @@ printSolution([State, Parent, G, H, F], Closed):-
     member([Parent, GrandParent, PrevG, Ph, Pf], Closed),
     printSolution([Parent, GrandParent, PrevG, Ph, Pf], Closed),
     write([State, G, H, F]), nl.
+
+% ------------------------------------------------------ main ---------------------------------------------
+
+input :- 
+    retractall(node(_, _, _)),
+    retractall(board_size(_, _)),
+    nl,
+    input_board_dimensions,
+    nl,
+    input_board(0, 0).
+
+search :- 
+    nl,
+    input_search_data(Start, Goal),
+    nl,
+    a_star_search([[Start,null,0,x,0]], [], Goal).
