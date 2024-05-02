@@ -22,5 +22,5 @@
         - All cells have the same color.
         - The cells are adjacent to each other.
 
-# To use A* Algorithm use this query : 
+# To use BFS Algorithm use this query : 
     - (main.)

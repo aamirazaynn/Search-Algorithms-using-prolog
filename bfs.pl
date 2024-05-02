@@ -52,7 +52,7 @@ check_cycle_in_path(Path, Color, Board) :-
 % Find a cycle of a given color
 find_cycle_of_color(Color,Board, Cycle) :-
     findall(
-        [X, Y, Color, [(X, Y)]], % open list
+        [X, Y, Color, [(X, Y)]],
         (
             inbounds(X, Y, Board, Color)
         ),
