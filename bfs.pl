@@ -95,7 +95,7 @@ search(Cycle) :-
 
 % no cycle found
 search(_) :-
-    nl, write('No cycles').
+    nl, write('No cycles detected').
 
 main :-
     nl, search(Cycle).
